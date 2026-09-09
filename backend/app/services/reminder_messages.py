@@ -1,0 +1,36 @@
+"""30 câu nhắc chụp bill (§5.1) — KHÔNG tự ý thay đổi nội dung."""
+
+REMINDER_MESSAGES = [
+    "Đừng quên chụp bill cà phê sáng nay nhé! ☕",
+    "Sao chưa thấy bill ăn trưa của bạn? Chụp ngay đi! 🍜",
+    "Hôm nay shopping gì? Chụp bill cho em xem với! 🛍️",
+    "Bill tiền điện tháng này chụp chưa? ⚡",
+    "Ăn tối xong nhớ chụp bill nhé! 🍽️",
+    "Mua sắm online thì bill đâu rồi? 📦",
+    "Hóa đơn tiền xăng nhớ lưu lại nè! ⛽",
+    "Chụp bill mua sắm hôm nay đi nào! 🛒",
+    "Đừng quên bill tiền nước tháng này! 💧",
+    "Hoá đơn nào chưa chụp? Cứu em với! 📸",
+    "Cafe sáng bao nhiêu? Chụp bill đi! ☕",
+    "Ăn trưa hết bao nhiêu? Bill đâu rồi? 🍜",
+    "Mua sắm gì vui quá, chụp bill đi! 🛍️",
+    "Tiền điện tháng này bao nhiêu? ⚡",
+    "Tối nay ăn gì? Chụp bill em xem! 🍽️",
+    "Shopee mua gì? Bill đâu? 📦",
+    "Đổ xăng hết bao nhiêu? ⛽",
+    "Mua sắm nhiều quá, bill đâu? 🛒",
+    "Tiền nước tháng này? 💧",
+    "Sao chưa thấy bill nào? 📸",
+    "Bill ăn vặt hôm nay đâu? 🍿",
+    "Đi ăn tiệc thì bill đâu rồi? 🎉",
+    "Bill thuốc thang có giữ không? 💊",
+    "Tiền gửi xe tháng này? 🅿️",
+    "Bill mua sách mới chụp chưa? 📚",
+    "Tiền cắt tóc xong nhớ chụp bill! 💇",
+    "Bill mua hoa quả hôm nay? 🍎",
+    "Tiền bảo trì xe hết bao nhiêu? 🔧",
+    "Bill tiền nhà tháng này? 🏠",
+    "Đi du lịch thì giữ bill lại nhé! ✈️",
+]
+
+assert len(REMINDER_MESSAGES) == 30, "Phải có chính xác 30 câu (§5.1)"
