@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 *.db
 *.sqlite
+backend/uploads/
 .env
 .env.*
 !.env.example

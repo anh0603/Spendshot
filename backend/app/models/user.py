@@ -29,6 +29,8 @@ class User(Base):
     # §8, §44 — notification settings (default ON). last_activity dùng làm last_active_at.
     push_enabled = Column(Boolean, default=True, server_default="1", nullable=False)
     email_enabled = Column(Boolean, default=True, server_default="1", nullable=False)
+    # Premium có hạn 30 ngày: hết hạn -> lazy downgrade về FREE (không cần cron).
+    premium_expires_at = Column(DateTime(timezone=True), nullable=True)
     # §16-§17 — trạng thái chuỗi email reminder (reset khi user quay lại app).
     email_reminder_count = Column(Integer, default=0, server_default="0", nullable=False)
     email_reminder_started_at = Column(DateTime(timezone=True), nullable=True)

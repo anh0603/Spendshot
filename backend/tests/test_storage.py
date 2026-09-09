@@ -118,11 +118,12 @@ def test_supabase_size_list_delete(monkeypatch):
     class FakeDel:
         status_code = 200
 
-    def fake_delete(url, json=None, headers=None, timeout=None):
+    def fake_request(method, url, json=None, headers=None, timeout=None):
+        assert method == "DELETE"
         deleted.extend(json["prefixes"])
         return FakeDel()
 
-    monkeypatch.setattr(httpx, "delete", fake_delete)
+    monkeypatch.setattr(httpx, "request", fake_request)
     assert p.delete_ref("/sb/users/u1/expenses/e1/bill.jpg") == 1000
     assert deleted == ["users/u1/expenses/e1/bill.jpg"]
     assert p.delete_ref("https://picsum.photos/x.jpg") == 0  # remote: không đụng

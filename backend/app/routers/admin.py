@@ -128,6 +128,7 @@ def get_user_detail(user_id: str, db: Session=Depends(get_db), admin: User=Depen
         "role":u.role.value if hasattr(u.role,'value') else str(u.role),
         "status":u.status.value if hasattr(u.status,'value') else str(u.status),
         "created_at":str(u.created_at),"last_activity":str(u.last_activity),
+        "premium_expires_at":str(getattr(u,"premium_expires_at",None)) if getattr(u,"premium_expires_at",None) else None,
         "jars":len(jars),"expenses":db.query(Expense).filter(Expense.user_id==user_id).count(),
         "total_spent":total_spent,
         "recent_expenses":[{"id":e.id,"amount":e.amount,"thumbnail":e.thumbnail,"created_at":str(e.created_at)} for e in expenses],
@@ -148,6 +149,12 @@ def update_user(user_id: str, payload: dict, db: Session=Depends(get_db), admin:
     if "role" in payload:
         try: u.role = UserRole(payload["role"])
         except: raise HTTPException(status_code=400, detail="Role không hợp lệ")
+        # Đồng bộ hạn Premium: cấp PREMIUM -> +30d (giữ ngày còn lại); hạ FREE -> xóa hạn.
+        if u.role == UserRole.PREMIUM:
+            from ..auth import grant_premium
+            grant_premium(u)
+        else:
+            u.premium_expires_at = None
         audit(db, admin, "CHANGE_PLAN", user_id)
     if "status" in payload:
         from ..models.user import UserStatus

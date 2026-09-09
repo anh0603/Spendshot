@@ -91,7 +91,8 @@ def approve_request(req_id: str, db: Session = Depends(get_db), admin: User = De
     u = db.query(User).filter(User.id == r.user_id).first()
     if not u:
         raise HTTPException(status_code=404, detail="Không tìm thấy user")
-    u.role = UserRole.PREMIUM
+    from ..auth import grant_premium
+    grant_premium(u)
     r.status = "APPROVED"
     db.add(AuditLog(admin_email=admin.email, action="APPROVE_PREMIUM", target=u.id, result="SUCCESS"))
     db.commit()
