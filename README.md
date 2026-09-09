@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SpendShot — Locket + Budget Jar
 
 > **Chụp chi tiêu. Nhìn thấy tiền đi.** Ứng dụng quản lý chi tiêu cá nhân visual-first, local-first, offline-first, PWA, Premium, Admin cùng 1 app.
@@ -281,3 +282,6 @@ cd frontend && npm run build
 
 ---
 *Version: 1.0 | Date: 28/08/2026 | Stack: React Vite Tailwind Dexie FastAPI SQLite PWA*
+=======
+# Spendshot
+>>>>>>> 16990ca2c57a014aaf857ca7fa759d1aa9fac6fe
