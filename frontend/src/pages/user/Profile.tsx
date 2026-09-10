@@ -64,7 +64,10 @@ export function ProfilePage() {
       const u = await updateMe({ name: name.trim(), ...(avatarFile ? { avatar: avatarFile } : {}) });
       setUser(u);
       setAvatarFile(null);
-      setAvatarPreview(photoUrl(u.avatar));
+      // Avatar dùng URL ổn định nên phải bust cache sau khi đổi, nếu không
+      // trình duyệt vẫn hiện ảnh cũ (server đã đặt no-cache cho avatar).
+      const fresh = photoUrl(u.avatar);
+      setAvatarPreview(avatarFile && fresh ? `${fresh}${fresh.includes("?") ? "&" : "?"}v=${Date.now()}` : fresh);
       setEditing(false);
       setSaveMsg("Đã lưu thông tin");
     } catch (e: any) { setSaveMsg(e.message); }

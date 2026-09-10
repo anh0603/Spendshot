@@ -66,6 +66,15 @@ def get_sb_file(file_path: str, request: Request):
     return _serve_file("sb/" + (file_path or ""), request)
 
 
+def _cache_headers(is_avatar: bool) -> dict:
+    # Ảnh expense/thumbnail: ID bất biến vĩnh viễn -> cache 1 năm (kể cả CDN).
+    # Avatar: cùng URL nhưng nội dung bị ghi đè khi đổi -> bắt revalidate mỗi lần
+    # (FileResponse tự trả 304 qua etag/last-modified nên vẫn nhanh).
+    if is_avatar:
+        return {"Cache-Control": "private, no-cache"}
+    return {"Cache-Control": "public, max-age=31536000, immutable"}
+
+
 def _serve_file(file_path: str, request: Request):
     db = SessionLocal()
     try:
@@ -94,7 +103,8 @@ def _serve_file(file_path: str, request: Request):
             if not got:
                 raise HTTPException(status_code=404, detail="Không tìm thấy file")
             data, media = got
-            return Response(content=data, media_type=media or "application/octet-stream")
+            return Response(content=data, media_type=media or "application/octet-stream",
+                            headers=_cache_headers(key.endswith("/avatar.jpg")))
 
         full = os.path.realpath(os.path.join(UPLOAD_ROOT, *parts))
         try:
@@ -104,7 +114,8 @@ def _serve_file(file_path: str, request: Request):
         if not same_root or not os.path.isfile(full):
             raise HTTPException(status_code=404, detail="Không tìm thấy file")
 
-        if parts[0] == "avatars":
+        is_avatar = parts[0] == "avatars"
+        if is_avatar:
             # avatars/{uid}.jpg — uid đoán được nên bắt buộc check owner
             if len(parts) != 2:
                 raise HTTPException(status_code=404, detail="Không tìm thấy file")
@@ -117,6 +128,7 @@ def _serve_file(file_path: str, request: Request):
                 raise HTTPException(status_code=404, detail="Không tìm thấy file")
 
         media, _ = mimetypes.guess_type(full)
-        return FileResponse(full, media_type=media or "application/octet-stream")
+        return FileResponse(full, media_type=media or "application/octet-stream",
+                            headers=_cache_headers(is_avatar))
     finally:
         db.close()
