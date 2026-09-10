@@ -32,11 +32,15 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
   /* Khóa zoom mobile/PWA: viewport đã chặn pinch + focus zoom,
      touch-action này diệt double-tap zoom (giữ nguyên pan/scroll). */
   touch-action: manipulation;
   /* Chặn scroll ngang do viewport, không ảnh hưởng sticky như overflow:hidden. */
   overflow-x: clip;
+  /* Chặn rubber-band overscroll (kéo quá đầu/cuối trang lộ nền theme cam):
+     native CSS, giữ nguyên scroll dọc và scroll trong modal. */
+  overscroll-behavior-y: none;
 }
 
 /* Tôn trọng người dùng cần giảm chuyển động */
@@ -56,6 +60,7 @@ body {
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
   overflow-x: clip;
+  overscroll-behavior-y: none;
 }
 
 /* Scrollbar */
