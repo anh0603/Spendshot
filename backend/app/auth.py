@@ -52,7 +52,9 @@ def is_valid_email(email: str) -> bool:
     return bool(GMAIL_REGEX.match(n))
 
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    # Cost 10 (thay vì default 12): verify nhanh ~4x trên CPU yếu, vẫn an toàn.
+    # Hash cũ cost 12 tiếp tục verify bình thường (cost nằm trong hash).
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=10)).decode()
 
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed.encode())
