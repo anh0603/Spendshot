@@ -4,7 +4,7 @@ from typing import Optional
 from ..database import get_db
 from ..models.user import User, UserRole
 from ..schemas import RegisterRequest, LoginRequest, TokenResponse, UserOut, PasswordResetRequest, ChangePasswordRequest
-from ..auth import normalize_email, is_valid_email, hash_password, verify_password, create_access_token, get_current_user
+from ..auth import normalize_email, is_valid_email, hash_password, verify_password, create_access_token, get_current_user, touch_activity
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -45,10 +45,9 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Email hoặc mật khẩu không chính xác")
     if str(user.status) == "SUSPENDED" or (hasattr(user.status,'value') and user.status.value=="SUSPENDED"):
         raise HTTPException(status_code=403, detail="Tài khoản bị khóa")
-    # update last_activity
-    from sqlalchemy.sql import func
-    user.last_activity = func.now()
-    db.commit()
+    # activity do touch_activity lo (throttle tối đa 1 write/15p/user, không bao
+    # giờ hỏng request) — bỏ ghi + commit trực tiếp ở hot path login.
+    touch_activity(db, user)
     role_val = user.role.value if hasattr(user.role,'value') else str(user.role)
     token = create_access_token({"sub": user.id, "role": role_val})
     return {"access_token": token, "token_type": "bearer", "user": to_user_out(user)}
