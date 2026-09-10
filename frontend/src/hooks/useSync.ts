@@ -12,7 +12,11 @@ export function useSync() {
   const refresh = useCallback(async ()=> setQueue(await db.syncQueue.toArray()), []);
 
   const push = useCallback(async ()=>{
-    const items = await db.syncQueue.where("status").anyOf(["PENDING","FAILED"]).toArray();
+    // Lấy cả SYNCING: request nào cũng có thể đã chết (reload/đóng tab/crash)
+    // mà không kịp qua catch. Trong phiên này push chạy tuần tự (guard isSyncing)
+    // nên SYNCING gặp ở đây chắc chắn là stale. Idempotency server-side
+    // (idempotency_key expense, id jar) khiến retry lặp là an toàn.
+    const items = await db.syncQueue.where("status").anyOf(["PENDING","FAILED","SYNCING"]).toArray();
     if (items.length===0) return;
     for (const it of items) if(it.id) await db.syncQueue.update(it.id,{status:"SYNCING"});
     await refresh();
@@ -70,7 +74,13 @@ export function useSync() {
   const syncRef = useRef(sync);
   syncRef.current = sync;
   useEffect(()=>{
-    refresh();
+    // FIX kẹt SYNCING: request đang bay không thể sống qua reload/đóng tab
+    // (JS context bị hủy, catch không bao giờ chạy) nên mọi SYNCING còn lại
+    // lúc khởi động chắc chắn là mồ côi → trả về PENDING để retry. Không mất data.
+    (async ()=>{
+      try { await db.syncQueue.where("status").equals("SYNCING").modify({status:"PENDING"}); } catch { /* bỏ qua */ }
+      await refresh();
+    })();
     // Mở app / có mạng lại → sync ngay
     const onOnline = ()=> syncRef.current();
     window.addEventListener("online", onOnline);
